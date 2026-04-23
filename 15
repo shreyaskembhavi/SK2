@@ -70,3 +70,137 @@ Hello from Docker container!
 docker run -p 5000:5000 my-python-app1
 Expected output of app.py:
 Hello from Docker Python Container in web browser
+-----------------------------------
+17.# Run nginx without port mapping
+docker run -d nginx
+
+# Run nginx with port mapping
+docker run -d -p 8080:80 nginx
+
+# Verify in browser
+# http://localhost:8080
+Part B: Docker Volume (Persistence)
+# Create volume
+docker volume create myvolume
+
+# Check volume
+docker volume ls
+
+# Run container with volume
+docker run -it -v myvolume:/data ubuntu bash
+
+Inside container:
+
+cd /data
+echo "Docker Volume Persistence Test" > test.txt
+exit
+# Run new container with same volume
+docker run -it -v myvolume:/data ubuntu bash
+
+# Verify file
+cat /data/test.txt
+exit
+Part C: Volume + Port Mapping
+# Run nginx with volume + port mapping
+docker run -d -p 8081:80 -v myvolume:/usr/share/nginx/html nginx
+
+# Add HTML file
+docker run -it -v myvolume:/data ubuntu bash
+Inside container:
+
+echo "<h1>Persistent Web Page</h1>" > /data/index.html
+exit
+# Verify in browser
+# http://localhost:8081
+--------------------------
+18.
+🔷 Step 1: Create Project Files
+
+Create a folder named:
+
+Docker-Java
+
+Inside it, create two files:
+
+📄 Dockerfile
+FROM eclipse-temurin:17-jdk
+WORKDIR /app
+COPY . /app
+RUN javac Grade.java
+CMD ["java", "Grade"]
+📄 Grade.java
+import java.util.Scanner;
+
+public class Grade{
+
+  static char gradeFunction(double avg) {
+    if (avg >= 90) return 'A';
+    else if (avg >= 80) return 'B';
+    else if (avg >= 70) return 'C';
+    else if (avg >= 60) return 'D';
+    else return 'F';
+  }
+
+  public static void main(String[] args) {
+    Scanner scanner = new Scanner(System.in);
+
+    System.out.print("How many grades (1 to 5)? ");
+    int count = scanner.nextInt();
+
+    if (count < 1 || count > 5) {
+      System.out.println("Invalid number.");
+      scanner.close();
+      return;
+    }
+
+    double sum = 0.0;
+
+    for (int i = 1; i <= count; i++) {
+      System.out.print("Enter grade " + i + ": ");
+      double grade = scanner.nextDouble();
+      sum += grade;
+    }
+
+    double avg = sum / count;
+    System.out.println("Average: " + avg);
+    System.out.println("Letter grade: " + gradeFunction(avg));
+
+    scanner.close();
+  }
+}
+🔷 Step 2: Build Docker Image
+
+Open terminal in the project folder and run:
+
+docker build -t java-app .
+🔷 Step 3: Login to Docker Hub
+docker login -u shreyaskembhavi
+
+Enter your password or access token.
+
+🔷 Step 4: Tag the Image
+docker tag java-app shreyaskembhavi/java-app:v1
+🔷 Step 5: Create Repository
+Go to Docker Hub
+Create repository: java-app
+Set visibility to Public
+🔷 Step 6: Push Image to Docker Hub
+docker push shreyaskembhavi/java-app:v1
+🔷 Step 7: Verify on Docker Hub
+Open Docker Hub
+Go to Repositories
+Check java-app
+Verify tag v1
+🔷 Step 8: Run the Docker Image
+docker run -it shreyaskembhavi/java-app:v1
+🔷 Sample Input
+3
+90
+85
+80
+🔷 Sample Output
+Average: 85.0
+Letter grade: B
+🔷 Result
+
+Successfully built a Docker image for a Java application and pushed it to Docker Hub. The image was verified and executed successfully
