@@ -5,4 +5,68 @@ docker run -d -p 8080:80 nginx
 http://localhost:8080
 docker ps
 docker stop <container_id>
-docker rm <container_id>
+docker rm <container_id>------------------------------------------
+Task 1 — Create a Simple Application
+Create a folder:
+mkdir docker-app
+cd docker-app
+Create a file named:
+1)	sample.py
+Add the following code:
+print("Hello from Docker container!")
+
+2)app.py (webserver code)
+Add the following code:
+from http.server import SimpleHTTPRequestHandler, HTTPServer
+
+PORT = 5020
+
+class MyHandler(SimpleHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header("Content-type", "text/html")
+        self.end_headers()
+        self.wfile.write(b"<h1>Hello from Docker Python Container</h1>")
+
+server = HTTPServer(("0.0.0.0", PORT), MyHandler)
+print(f"Server running on port {PORT}...")
+server.serve_forever()
+
+Task 2 — Write the Dockerfile
+Create a file named:
+1)	Dockerfile for sample.py
+Add:
+FROM python:3.9-slim
+WORKDIR /app
+COPY app.py .
+CMD ["python", "app.py"]
+
+1)	Dockerfile for app.py
+FROM python:3.9-slim
+
+WORKDIR /app
+
+COPY app.py .
+
+EXPOSE 5020
+
+CMD ["python", "app.py"]
+
+Task 3 — Build the Docker Image
+Run in the project folder:
+docker build -t my-python-app .
+Explanation:
+•	-t → tag (name of image)
+•	. → current directory (contains Dockerfile)
+Task 4 — Check Created Image
+docker images
+You should see:
+my-python-app
+Task 5 — Run the Container
+docker run my-python-app
+Expected output of sample.py:
+Hello from Docker container!
+
+docker run -p 5000:5000 my-python-app1
+Expected output of app.py:
+Hello from Docker Python Container in web browser
